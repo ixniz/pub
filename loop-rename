@@ -1,0 +1,2 @@
+loop through all files in folder and rename them. 
+for file in *;do mv $file $file.txt; done
