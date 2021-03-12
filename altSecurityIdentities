@@ -1,0 +1,20 @@
+https://docs.microsoft.com/en-us/archive/blogs/spatdsg/howto-map-a-user-to-a-certificate-via-all-the-methods-available-in-the-altsecurityidentities-attribute
+
+certutil.exe -dspublish -f "DomainControllerCertificateIssuingCA.cer" NTAuthCA
+
+Domain Controllers: 
+SYSTEM\CurrentControlSet\Services\Kdc
+UseSubjectAltName
+DWORD
+0
+
+Member Servers: 
+SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters
+SendPreauthForNewerETypes
+DWORD
+1
+
+SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters
+UseSubjectAltName
+DWORD
+0
