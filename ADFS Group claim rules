@@ -1,0 +1,21 @@
+POLICY3824: The LDAP query to the Active Directory attribute store must have three parts separated by semicolons. The first part is the LDAP query filter, the second part is a comma-separated list of LDAP attribute names, and the third part is the user name in 'domain\user' format.'.
+
+@RuleName = "Add all groups as Group"
+c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname", Issuer == "AD AUTHORITY"]
+ => add(store = "Active Directory", types = ("http://schemas.xmlsoap.org/claims/Group"), query = ";tokenGroups;{0}", param = c.Value);
+
+@RuleName = "Add group Name from SID as Group"
+c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid", Value =~ "^S-1-5-21-xxxx-xxxx-xxxx-[0-9]{4,}$"]
+ => add(store = "Active Directory", types = ("http://schemas.xmlsoap.org/claims/Group"), query = "objectSid={0};Name;<DOMAIN>\adfssvc", param = c.Value);
+
+@RuleName = "Add Active Directory user memberOf"
+c:[Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+ => add(store = "Active Directory", types = ("memberOf"), query = "sAMAccountName={0};memberOf;<DOMAIN>\adfssvc", param = c.Value);
+
+@RuleName = "Add group Name from memberOf distinguishedName as Group"
+c:[Type == "memberOf"]
+ => add(store = "Active Directory", types = ("http://schemas.xmlsoap.org/claims/Group"), query = "distinguishedName={0};Name;<DOMAIN>\adfssvc", param = c.Value);
+
+@RuleName = "Filter and issue groups from Group based on prefix"
+c:[Type == "http://schemas.xmlsoap.org/claims/Group", Value =~ "^<prefix>"]
+ => issue(claim = c);
